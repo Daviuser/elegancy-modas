@@ -19,3 +19,16 @@ export function slugify(text: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+export function formatDateTime(value: Date | string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "America/Bahia",
+  }).format(new Date(value));
+}
+
+/** 129.9 -> "129,90" (valor inicial de campos de preço). */
+export function formatMoneyInput(value: number) {
+  return value.toFixed(2).replace(".", ",");
+}

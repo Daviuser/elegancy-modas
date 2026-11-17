@@ -1,9 +1,11 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string };
 
 export function Field({ label, error, id, className, ...rest }: Props) {
-  const fieldId = id ?? rest.name;
+  const autoId = useId();
+  const fieldId = id ?? rest.name ?? autoId;
   return (
     <div className="space-y-1.5">
       <label htmlFor={fieldId} className="block text-sm text-ink-soft">
@@ -19,6 +21,43 @@ export function Field({ label, error, id, className, ...rest }: Props) {
         )}
         {...rest}
       />
+      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+    </div>
+  );
+}
+
+const controlClass =
+  "w-full rounded-sm border border-beige-300 bg-white px-3 text-base text-ink transition-colors focus:border-gold-500 focus:outline-none";
+
+type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string };
+
+export function SelectField({ label, error, id, className, children, ...rest }: SelectProps) {
+  const autoId = useId();
+  const fieldId = id ?? rest.name ?? autoId;
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={fieldId} className="block text-sm text-ink-soft">
+        {label}
+      </label>
+      <select id={fieldId} className={cn(controlClass, "h-11", className)} {...rest}>
+        {children}
+      </select>
+      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+    </div>
+  );
+}
+
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; error?: string };
+
+export function TextareaField({ label, error, id, className, ...rest }: TextareaProps) {
+  const autoId = useId();
+  const fieldId = id ?? rest.name ?? autoId;
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={fieldId} className="block text-sm text-ink-soft">
+        {label}
+      </label>
+      <textarea id={fieldId} className={cn(controlClass, "py-2.5", className)} {...rest} />
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
     </div>
   );

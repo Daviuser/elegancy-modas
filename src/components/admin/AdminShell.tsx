@@ -7,6 +7,7 @@ import { LogOut, Menu, X } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions";
 import { Emblem } from "@/components/brand/Emblem";
 import { adminNav } from "@/config/admin-nav";
+import { ToastProvider } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
 
 type Props = { admin: { name: string; email: string }; children: React.ReactNode };
@@ -66,6 +67,7 @@ export function AdminShell({ admin, children }: Props) {
   useEffect(() => setOpen(false), [pathname]);
 
   return (
+    <ToastProvider>
     <div className="min-h-dvh">
       {/* Desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-beige-200 lg:block">
@@ -120,5 +122,6 @@ export function AdminShell({ admin, children }: Props) {
         <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10">{children}</div>
       </main>
     </div>
+    </ToastProvider>
   );
 }

@@ -31,6 +31,7 @@ enum OrderStatus {
 enum StockMovementType {
   INITIAL
   ENTRY
+  EXIT
   SALE
   ADJUSTMENT
   RETURN
@@ -84,7 +85,7 @@ model Product {
   description    String?
   sku            String?       @unique
   price          Decimal       @db.Decimal(10, 2)
-  compareAtPrice Decimal?      @db.Decimal(10, 2)
+  promoPrice     Decimal?      @db.Decimal(10, 2)
   status         ProductStatus @default(DRAFT)
   featured       Boolean       @default(false)
   categoryId     String

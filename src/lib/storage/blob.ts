@@ -35,3 +35,13 @@ export async function uploadImage(file: File, folder: UploadFolder) {
 export async function deleteImage(urlOrPathname: string) {
   await del(urlOrPathname, { token: getToken() });
 }
+
+/** Remove arquivos do Blob sem derrubar a operação principal (limpeza best-effort). */
+export async function deleteBlobsQuietly(urls: string[]) {
+  if (urls.length === 0) return;
+  try {
+    await del(urls, { token: getToken() });
+  } catch (error) {
+    console.error("[blob cleanup]", error);
+  }
+}
