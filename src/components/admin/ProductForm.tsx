@@ -39,6 +39,7 @@ export function ProductForm({ categories, product }: Props) {
   const [promoPrice, setPromoPrice] = useState(product?.promoPrice ? formatMoneyInput(product.promoPrice) : "");
   const [sku, setSku] = useState(product?.sku ?? "");
   const [status, setStatus] = useState<ProductStatusValue>(product?.status ?? "ACTIVE");
+  const [featured, setFeatured] = useState(product?.featured ?? false);
   const [images, setImages] = useState<ImageItem[]>(
     product?.images.map((i) => ({ key: i.id, id: i.id, url: i.url, pathname: i.pathname })) ?? [],
   );
@@ -90,6 +91,7 @@ export function ProductForm({ categories, product }: Props) {
         promoPrice,
         sku,
         status,
+        featured,
         images: images.map((img) => {
           const sent = uploaded.get(img.key);
           return { id: img.id, url: sent?.url ?? img.url, pathname: sent?.pathname ?? img.pathname ?? "" };
@@ -159,6 +161,16 @@ export function ProductForm({ categories, product }: Props) {
             <option value="DRAFT">Inativo</option>
             <option value="ARCHIVED">Arquivado</option>
           </SelectField>
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={featured}
+              onChange={(e) => setFeatured(e.target.checked)}
+              disabled={saving}
+              className="h-4 w-4 accent-[var(--color-gold-500)]"
+            />
+            Destacar na página inicial da loja
+          </label>
         </div>
         {categories.length === 0 ? (
           <p className="mt-4 text-sm text-red-700">

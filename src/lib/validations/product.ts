@@ -61,6 +61,7 @@ export const productSchema = z
       .optional()
       .transform((v) => (v ? v.toUpperCase() : null)),
     status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]),
+    featured: z.boolean(),
     images: z.array(imageSchema).max(MAX_PRODUCT_IMAGES, `Máximo de ${MAX_PRODUCT_IMAGES} imagens.`),
     variants: z.array(variantSchema).min(1, "Cadastre ao menos uma variação.").max(80, "Máximo de 80 variações."),
   })

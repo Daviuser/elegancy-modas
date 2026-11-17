@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       onBeforeGenerateToken: async (pathname) => {
         const admin = await getCurrentAdmin();
         if (!admin) throw new Error("Não autorizado.");
-        if (!/^products\/[A-Za-z0-9_-]+\.(jpg|png|webp|avif)$/.test(pathname)) {
+        if (!/^(products|banners)\/[A-Za-z0-9_-]+\.(jpg|png|webp|avif)$/.test(pathname)) {
           throw new Error("Caminho de arquivo inválido.");
         }
         return {

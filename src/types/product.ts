@@ -12,6 +12,7 @@ export type ProductFormData = {
   promoPrice: number | null;
   sku: string;
   status: ProductStatusValue;
+  featured: boolean;
   images: { id: string; url: string; pathname: string }[];
   variants: { id: string; size: string; colorName: string; active: boolean; stock: number }[];
 };

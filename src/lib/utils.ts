@@ -32,3 +32,15 @@ export function formatDateTime(value: Date | string) {
 export function formatMoneyInput(value: number) {
   return value.toFixed(2).replace(".", ",");
 }
+
+const SIZE_ORDER = ["PP", "P", "M", "G", "GG", "XG", "ÚNICO", "UNICO", "U"];
+
+/** Ordena tamanhos: PP, P, M, G, GG… depois numéricos. */
+export function compareSizes(a: string, b: string) {
+  const ia = SIZE_ORDER.indexOf(a.toUpperCase());
+  const ib = SIZE_ORDER.indexOf(b.toUpperCase());
+  if (ia >= 0 && ib >= 0) return ia - ib;
+  if (ia >= 0) return -1;
+  if (ib >= 0) return 1;
+  return a.localeCompare(b, "pt-BR", { numeric: true });
+}

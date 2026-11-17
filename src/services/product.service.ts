@@ -86,6 +86,7 @@ export async function getProductForEdit(id: string): Promise<ProductFormData | n
     promoPrice: p.promoPrice ? p.promoPrice.toNumber() : null,
     sku: p.sku ?? "",
     status: p.status,
+    featured: p.featured,
     images: p.images.map((i) => ({ id: i.id, url: i.url, pathname: i.pathname })),
     variants: p.variants.map((v) => ({
       id: v.id,
@@ -131,6 +132,7 @@ export async function saveProduct(input: ProductInput, adminId: string) {
     price: input.price,
     promoPrice: input.promoPrice,
     status: input.status,
+    featured: input.featured,
     categoryId: input.categoryId,
   };
 

@@ -22,10 +22,10 @@ enum ProductStatus {
 enum OrderStatus {
   PENDING
   CONFIRMED
-  PAID
-  SHIPPED
-  DELIVERED
-  CANCELED
+  PREPARING
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
 }
 
 enum StockMovementType {
@@ -150,12 +150,21 @@ model Order {
   number       Int         @unique @default(autoincrement())
   status       OrderStatus @default(PENDING)
   customerName  String
-  customerPhone String
+  customerPhone  String?
   customerNote  String?
   subtotal     Decimal     @db.Decimal(10, 2)
   discount     Decimal     @default(0) @db.Decimal(10, 2)
   total        Decimal     @db.Decimal(10, 2)
   whatsappSentAt DateTime?
+  // Link seguro e imprevisível da página de confirmação do cliente.
+  publicToken     String    @unique @default(uuid())
+  // Evita pedido duplicado em envios repetidos do mesmo checkout.
+  idempotencyKey  String?   @unique
+  confirmedAt     DateTime?
+  cancelledAt     DateTime?
+  // Marcadores que impedem baixa e devolução de estoque em duplicidade.
+  stockDeductedAt DateTime?
+  stockRestoredAt DateTime?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -212,6 +221,8 @@ model StockMovement {
   order   Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   admin   Admin?         @relation(fields: [adminId], references: [id], onDelete: SetNull)
 
+  // No máximo uma movimentação de cada tipo por pedido e variação (barreira contra duplicidade).
+  @@unique([orderId, variantId, type])
   @@index([variantId, createdAt])
   @@index([orderId])
   @@index([adminId])

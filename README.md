@@ -1,4 +1,4 @@
-# Elegancy Modas — Etapas 1 e 2 (fundação + painel de catálogo e estoque)
+# Elegancy Modas — Etapas 1, 2 e 3 (fundação, catálogo/estoque e loja com pedidos)
 
 Loja virtual de roupas com catálogo público, painel administrativo e pedidos pelo WhatsApp.
 Esta etapa entrega **somente a base técnica**: estrutura, banco de dados, autenticação administrativa e painel com navegação. Catálogo, carrinho e pedidos chegam nas próximas etapas.
@@ -111,3 +111,58 @@ O navegador envia as fotos **direto ao Blob** com um token de curta duração em
 
 ### Fora desta etapa (Etapa 3)
 Vitrine pública, carrinho, checkout, pedidos pelo WhatsApp e gerenciamento de pedidos.
+
+## Etapa 3 — loja virtual, carrinho e pedidos
+
+### Atualizando (sem perder dados)
+```bash
+npm install
+npm run db:deploy      # aplica 20261202000000_etapa3_pedidos_e_whatsapp
+```
+A migration é não destrutiva: recria o enum `OrderStatus` mapeando valores antigos (`CANCELED→CANCELLED`, `PAID→CONFIRMED`, `SHIPPED→READY_FOR_PICKUP`, `DELIVERED→COMPLETED`), torna `Order.customerPhone` opcional, adiciona `publicToken`, `idempotencyKey`, `confirmedAt`, `cancelledAt`, `stockDeductedAt`, `stockRestoredAt` e cria índices únicos (inclusive `StockMovement(orderId, variantId, type)`, barreira contra movimentação duplicada). Nenhum produto, categoria, imagem ou movimentação é alterado.
+
+### Configuração necessária ANTES de abrir a loja
+1. **Admin → Configurações:** informe o **WhatsApp comercial** (DDD + número). É a única fonte do número; sem ele o checkout recusa pedidos. Preencha também e-mail, Instagram, endereço e “Sobre” (aparecem no rodapé).
+2. **Admin → Banners:** envie o banner principal (opcional; sem banner ativo, a home mostra a abertura com o emblema).
+3. **Admin → Produtos:** marque “Destacar na página inicial” nos produtos desejados.
+4. `NEXT_PUBLIC_SITE_URL` com a URL final (usada no sitemap e SEO) e `BLOB_READ_WRITE_TOKEN` na Vercel.
+
+### Rotas
+| Pública | |
+|---|---|
+| `/` | banner, categorias, novidades, destaques |
+| `/catalogo` | busca, categoria, faixa de preço, ordenação, paginação |
+| `/produto/[slug]` | galeria, cor/tamanho reais, estoque por variação |
+| `/carrinho` · `/checkout` | carrinho persistente (localStorage) e finalização só com o nome |
+| `/pedido/[token]` | confirmação com botão para reabrir o WhatsApp |
+| `/sitemap.xml` · `/robots.txt` | SEO |
+
+Admin: `/admin/pedidos` (filtros por nº, cliente, período e situação), `/admin/pedidos/[id]`, `/admin/configuracoes`, `/admin/banners`.
+
+### Fluxo do pedido e regras de estoque
+- O navegador guarda só `variantId` + quantidade. **Preço, nome, estoque e situação vêm sempre do banco**, no carrinho e de novo na criação do pedido.
+- Criar pedido **não mexe no estoque**. O pedido guarda nome, SKU, tamanho, cor, preço unitário e imagem do momento da compra.
+- Envio repetido não duplica: o checkout usa uma chave de idempotência (`Order.idempotencyKey`, única).
+- Abrir o WhatsApp usa o link oficial `https://wa.me/<número>?text=…`. **Não é possível anexar imagens** por esse link e isso não é simulado. Se o WhatsApp não abrir, o pedido já está salvo e a página `/pedido/[token]` tem o botão para tentar de novo.
+- Situações: Aguardando confirmação → Confirmado → Em preparação → Pronto para retirada → Concluído; Cancelado a partir de qualquer situação aberta.
+- **Confirmar** (uma transação): revalida produto ativo, variação existente/ativa e estoque de TODOS os itens; se qualquer item falhar, nada é descontado e o erro é mostrado; se passar, desconta, registra movimentações `SALE` e marca `stockDeductedAt`.
+- **Cancelar antes de confirmar:** sem movimentação. **Cancelar pedido confirmado:** devolve o estoque com movimentações `CANCELLATION`, uma única vez (`stockRestoredAt`).
+- Anti-duplicidade: troca de status por atualização condicional (duas confirmações simultâneas → só uma vence), marcadores no pedido e índice único `(pedido, variação, tipo)`.
+
+### Limitações conhecidas
+- Preço mostrado na ordenação por preço usa o preço efetivo (promoção incluída), calculado em memória até 1000 produtos; para catálogos muito grandes, migrar para consulta SQL.
+- O freio contra pedidos em massa é simples (limite global por minuto). Para exposição pública intensa, adicione CAPTCHA/limite por IP.
+- Fotos enviadas e não salvas podem ficar órfãs no Blob.
+
+### Roteiro de testes manuais (execute após o deploy)
+1. Abrir `/`, `/catalogo`, `/produto/<slug>` com produtos reais; conferir só ativos e “Esgotado” sem compra.
+2. Pesquisar, filtrar por categoria e preço, ordenar; paginar.
+3. Escolher cor e tamanho; combinação sem estoque deve estar desabilitada.
+4. Adicionar itens diferentes e a mesma peça em tamanhos diferentes (linhas separadas); alterar quantidades; remover; recarregar a página (carrinho persiste).
+5. Com o carrinho aberto, zerar o estoque de uma variação no admin e atualizar: o item deve aparecer bloqueado.
+6. Checkout: nome → “FINALIZAR PEDIDO PELO WHATSAPP”; conferir pedido no banco/admin, `EM-xxxxx`, mensagem no WhatsApp e que o estoque **não** mudou.
+7. Clicar duas vezes / recarregar durante o envio: apenas um pedido.
+8. Admin: confirmar o pedido → estoque baixou e há movimentações `SALE`; tentar confirmar de novo (bloqueado).
+9. Pedido com estoque insuficiente: confirmação recusada sem baixa parcial.
+10. Cancelar pedido pendente (sem movimentação) e pedido confirmado (estoque devolvido, `CANCELLATION`, sem duplicar).
+11. Repetir em Android e iPhone (menu, galeria, carrinho, abertura do WhatsApp).
