@@ -6,6 +6,8 @@ export type StoreProductCard = {
   /** Preço efetivo promocional (já validado como menor que o preço). */
   promoPrice: number | null;
   imageUrl: string | null;
+  /** Segunda foto, usada na troca ao passar o mouse. */
+  hoverImageUrl: string | null;
   available: boolean;
 };
 

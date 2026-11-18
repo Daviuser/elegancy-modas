@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Bodoni_Moda, Hanken_Grotesk } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const bodoni = Bodoni_Moda({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-cormorant",
+  style: ["normal", "italic"],
+  variable: "--font-bodoni",
   display: "swap",
 });
-const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap" });
+const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
@@ -17,11 +17,11 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export const viewport: Viewport = { themeColor: "#fbf8f3", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f5f1ea", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable}`}>
+    <html lang="pt-BR" className={`${bodoni.variable} ${hanken.variable}`}>
       <body className="min-h-dvh">{children}</body>
     </html>
   );

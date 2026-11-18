@@ -11,7 +11,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   const [settings, categories] = await Promise.all([getStoreSettings(), listNavCategories()]);
   return (
     <CartProvider>
-      <a href="#conteudo" className="sr-only z-[70] bg-ink px-4 py-2 text-ivory focus:not-sr-only focus:fixed focus:left-2 focus:top-2">
+      <a href="#conteudo" className="sr-only z-[70] bg-ink px-4 py-2 text-paper focus:not-sr-only focus:fixed focus:left-2 focus:top-2">
         Pular para o conteúdo
       </a>
       <div className="flex min-h-dvh flex-col">

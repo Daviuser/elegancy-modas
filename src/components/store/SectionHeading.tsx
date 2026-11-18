@@ -1,15 +1,19 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-export function SectionHeading({ title, href, linkLabel = "Ver tudo" }: { title: string; href?: string; linkLabel?: string }) {
+type Props = { title: string; href?: string; linkLabel?: string; kicker?: string };
+
+export function SectionHeading({ title, href, linkLabel = "Ver tudo", kicker }: Props) {
   return (
-    <div className="mb-8 flex items-end justify-between gap-4">
+    <div className="mb-8 flex items-end justify-between gap-6 sm:mb-12">
       <div>
-        <h2 className="font-display text-3xl font-light tracking-wide sm:text-4xl">{title}</h2>
-        <span className="mt-3 block h-px w-12 bg-gold-400" aria-hidden />
+        {kicker ? <p className="mb-2 font-display text-lg italic text-wine">{kicker}</p> : null}
+        <h2 className="font-display text-4xl leading-[1.02] sm:text-6xl">{title}</h2>
       </div>
       {href ? (
-        <Link href={href} className="text-sm text-ink-soft underline-offset-4 transition-colors hover:text-gold-600 hover:underline">
-          {linkLabel}
+        <Link href={href} className="group inline-flex shrink-0 items-center gap-2 pb-1 text-sm">
+          <span className="link-underline pb-0.5">{linkLabel}</span>
+          <ArrowRight size={16} strokeWidth={1.4} className="transition-transform duration-300 ease-soft group-hover:translate-x-1" />
         </Link>
       ) : null}
     </div>

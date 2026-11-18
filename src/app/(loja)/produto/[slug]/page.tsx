@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronRight, Plus } from "lucide-react";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductPurchase } from "@/components/store/ProductPurchase";
+import { Reveal } from "@/components/store/Reveal";
 import { SectionHeading } from "@/components/store/SectionHeading";
 import { getProductBySlug, listRelatedProducts } from "@/services/store.service";
 
@@ -17,8 +19,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: p.name,
     description,
+    alternates: { canonical: `/produto/${p.slug}` },
     openGraph: { title: p.name, description, images: p.images[0] ? [p.images[0].url] : undefined },
   };
+}
+
+function Accordion({ title, children, open = false }: { title: string; children: React.ReactNode; open?: boolean }) {
+  return (
+    <details open={open} className="group border-b border-line">
+      <summary className="flex items-center justify-between py-5 font-display text-xl">
+        {title}
+        <Plus size={18} strokeWidth={1.4} className="transition-transform duration-300 ease-soft group-open:rotate-45" />
+      </summary>
+      <div className="details-panel pb-6 leading-relaxed text-ink-soft">{children}</div>
+    </details>
+  );
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -45,37 +60,54 @@ export default async function ProductPage({ params }: Props) {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
+    <div className="mx-auto max-w-[90rem] px-4 pb-24 pt-6 sm:px-8 lg:pt-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <nav aria-label="Você está em" className="mb-6 text-sm text-ink-soft">
-        <Link href="/" className="hover:text-gold-600">Início</Link> /{" "}
-        <Link href={`/catalogo?categoria=${product.category.slug}`} className="hover:text-gold-600">{product.category.name}</Link>
+
+      <nav aria-label="Você está em" className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
+        <Link href="/" className="link-underline pb-0.5">Início</Link>
+        <ChevronRight size={14} strokeWidth={1.4} />
+        <Link href={`/catalogo?categoria=${product.category.slug}`} className="link-underline pb-0.5">{product.category.name}</Link>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16 xl:gap-24">
         <ProductGallery images={product.images} name={product.name} />
-        <div className="lg:pt-4">
-          <h1 className="font-display text-4xl font-light leading-tight tracking-wide sm:text-5xl">{product.name}</h1>
-          {product.sku ? <p className="mt-2 text-sm text-ink-soft">Ref. {product.sku}</p> : null}
-          <span className="my-6 block h-px w-12 bg-gold-400" aria-hidden />
-          <ProductPurchase product={{ name: product.name, price: product.price, promoPrice: product.promoPrice, variants: product.variants }} />
-          {product.description ? (
-            <div className="mt-10 border-t border-beige-200 pt-8">
-              <h2 className="font-display text-2xl">Descrição</h2>
-              <p className="mt-3 whitespace-pre-line leading-relaxed text-ink-soft">{product.description}</p>
-            </div>
-          ) : null}
+
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <p className="font-display text-lg italic text-wine">{product.category.name}</p>
+          <h1 className="mt-1 font-display text-[2.6rem] leading-[1.02] sm:text-6xl">{product.name}</h1>
+          {product.sku ? <p className="mt-3 text-xs text-mute">Ref. {product.sku}</p> : null}
+
+          <div className="mt-7">
+            <ProductPurchase product={{ name: product.name, price: product.price, promoPrice: product.promoPrice, variants: product.variants }} />
+          </div>
+
+          <div className="mt-10 border-t border-line">
+            {product.description ? (
+              <Accordion title="Descrição" open>
+                <p className="whitespace-pre-line">{product.description}</p>
+              </Accordion>
+            ) : null}
+            <Accordion title="Como comprar">
+              <p>Monte a sua sacola, informe apenas o seu nome e envie o pedido pelo WhatsApp. A loja confirma a disponibilidade e combina os próximos passos com você.</p>
+            </Accordion>
+          </div>
         </div>
       </div>
 
       {related.length > 0 ? (
-        <section className="mt-24">
-          <SectionHeading title="Você também pode gostar" />
-          <div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+        <section className="mt-24 lg:mt-32">
+          <Reveal>
+            <SectionHeading kicker="Combine com" title="Você também pode gostar" />
+          </Reveal>
+          <Reveal>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
+              {related.map((p) => (
+                <li key={p.id}>
+                  <ProductCard product={p} />
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </section>
       ) : null}
     </div>

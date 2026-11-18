@@ -15,7 +15,7 @@ export function Field({ label, error, id, className, ...rest }: Props) {
         id={fieldId}
         aria-invalid={error ? true : undefined}
         className={cn(
-          "h-11 w-full rounded-sm border border-beige-300 bg-white px-3 text-base text-ink transition-colors placeholder:text-beige-300 focus:border-gold-500 focus:outline-none",
+          "h-11 w-full rounded-none border border-line bg-white px-3 text-base text-ink transition-colors placeholder:text-mute/70 hover:border-mute focus:border-ink focus:outline-none",
           error && "border-red-700",
           className,
         )}
@@ -27,7 +27,7 @@ export function Field({ label, error, id, className, ...rest }: Props) {
 }
 
 const controlClass =
-  "w-full rounded-sm border border-beige-300 bg-white px-3 text-base text-ink transition-colors focus:border-gold-500 focus:outline-none";
+  "w-full rounded-none border border-line bg-white px-3 text-base text-ink transition-colors hover:border-mute focus:border-ink focus:outline-none";
 
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string };
 

@@ -1,23 +1,25 @@
 import Image from "next/image";
-import Link from "next/link";
+import { HeroCopy } from "@/components/store/Hero";
 
 type Props = { title: string; subtitle: string | null; linkUrl: string | null; imageUrl: string };
 
+/** Abertura com o banner ativo cadastrado no painel (imagem editorial + texto ao lado). */
 export function BannerHero({ title, subtitle, linkUrl, imageUrl }: Props) {
   return (
-    <section className="relative isolate flex min-h-[70svh] items-end overflow-hidden bg-beige-100 sm:min-h-[62vh] sm:items-center">
-      <Image src={imageUrl} alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
-      <div className="absolute inset-0 -z-10 bg-ink/25" aria-hidden />
-      <div className="mx-auto w-full max-w-7xl px-6 pb-14 pt-24 sm:pb-0">
-        <div className="animate-rise max-w-xl text-white">
-          <h1 className="font-display text-5xl font-light leading-[1.05] tracking-wide sm:text-7xl">{title}</h1>
-          {subtitle ? <p className="mt-4 text-lg text-white/90">{subtitle}</p> : null}
-          <Link
+    <section>
+      <div className="mx-auto grid max-w-[90rem] gap-10 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-12 lg:gap-12 lg:pb-24 lg:pt-12">
+        <div className="order-2 lg:order-1 lg:col-span-5">
+          <HeroCopy
+            title={title}
+            subtitle={subtitle ?? "Descubra as peças da estação, selecionadas com cuidado para você."}
             href={linkUrl ?? "/catalogo"}
-            className="mt-8 inline-flex h-12 items-center border border-white px-8 text-sm tracking-wide transition-colors duration-300 hover:bg-white hover:text-ink"
-          >
-            {linkUrl ? "Saiba mais" : "Ver catálogo"}
-          </Link>
+            cta={linkUrl ? "Saiba mais" : "Ver a coleção"}
+          />
+        </div>
+        <div className="order-1 lg:order-2 lg:col-span-7">
+          <div className="animate-settle relative aspect-[4/5] overflow-hidden bg-paper-deep sm:aspect-[7/6]">
+            <Image src={imageUrl} alt="" fill priority sizes="(min-width:1024px) 58vw, 100vw" className="object-cover" />
+          </div>
         </div>
       </div>
     </section>

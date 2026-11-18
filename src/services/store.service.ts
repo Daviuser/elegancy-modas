@@ -15,7 +15,7 @@ const cardSelect = {
   name: true,
   price: true,
   promoPrice: true,
-  images: { orderBy: { position: "asc" }, take: 1, select: { url: true } },
+  images: { orderBy: { position: "asc" }, take: 2, select: { url: true } },
   variants: { where: { active: true }, select: { stock: true } },
 } satisfies Prisma.ProductSelect;
 type CardRow = Prisma.ProductGetPayload<{ select: typeof cardSelect }>;
@@ -34,6 +34,7 @@ function toCard(p: CardRow): StoreProductCard {
     price,
     promoPrice: promo !== null && promo < price ? promo : null,
     imageUrl: p.images[0]?.url ?? null,
+    hoverImageUrl: p.images[1]?.url ?? null,
     available: p.variants.some((v) => v.stock > 0),
   };
 }

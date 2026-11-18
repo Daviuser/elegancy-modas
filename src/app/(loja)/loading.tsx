@@ -1,9 +1,16 @@
 export default function Loading() {
   return (
-    <div className="mx-auto grid max-w-7xl grid-cols-2 gap-5 px-6 py-16 lg:grid-cols-4" aria-busy>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="aspect-[3/4] animate-pulse bg-beige-100" />
-      ))}
+    <div className="mx-auto max-w-[90rem] px-4 py-14 sm:px-8" aria-busy role="status">
+      <span className="sr-only">Carregando…</span>
+      <div className="h-10 w-56 animate-pulse bg-paper-deep" />
+      <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i}>
+            <div className="aspect-[3/4] animate-pulse bg-paper-deep" />
+            <div className="mt-3 h-4 w-2/3 animate-pulse bg-paper-deep" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
